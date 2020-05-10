@@ -1,9 +1,9 @@
 <?php
 
-namespace PhilKra\ElasticApmLaravel\Apm;
+namespace Nipwaayoni\ElasticApmLaravel\Apm;
 
 
-use PhilKra\Helper\Timer;
+use Nipwaayoni\Helper\Timer;
 
 /*
  * Eventually this class could be a proxy for a Transaction provided by the

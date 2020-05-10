@@ -1,16 +1,16 @@
 <?php
 
-namespace PhilKra\ElasticApmLaravel\Middleware;
+namespace Nipwaayoni\ElasticApmLaravel\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Log;
-use PhilKra\Agent;
-use PhilKra\Helper\Timer;
+use Nipwaayoni\Agent;
+use Nipwaayoni\Helper\Timer;
 
 class RecordTransaction
 {
     /**
-     * @var \PhilKra\Agent
+     * @var Agent
      */
     protected $agent;
     /**
