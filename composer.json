@@ -19,6 +19,9 @@
     "nipwaayoni/elastic-apm-php-agent": "7.1.0-beta",
     "ramsey/uuid": "^3.0"
   },
+  "require-dev": {
+    "orchestra/testbench": "^5.2"
+  },
   "autoload": {
     "psr-4": {
       "Nipwaayoni\\ElasticApmLaravel\\": "src/"
@@ -26,7 +29,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Nipwaayoni\\Tests\\": "tests/"
+      "Nipwaayoni\\ElasticApmLaravel\\Tests\\": "tests/"
     }
   },
   "extra": {
