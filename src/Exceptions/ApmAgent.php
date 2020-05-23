@@ -37,8 +37,7 @@ class ApmAgent extends Handler
         try {
             $this->agent->captureThrowable($exception);
             $this->agent->send();
-        }
-        catch(\Throwable $t) {
+        } catch (\Throwable $t) {
             Log::error($t);
         }
 

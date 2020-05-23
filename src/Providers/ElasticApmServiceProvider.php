@@ -18,7 +18,7 @@ class ElasticApmServiceProvider extends ServiceProvider
     /** @var float */
     private $startTime;
     /** @var string  */
-    private $sourceConfigPath = __DIR__ . '/../../config/elastic-apm.php';
+    private $sourceConfigPath = __DIR__ . '/../config/elastic-apm.php';
 
     /**
      * Bootstrap the application services.
@@ -45,7 +45,6 @@ class ElasticApmServiceProvider extends ServiceProvider
      */
     public function register()
     {
-
         $this->mergeConfigFrom(
             realpath($this->sourceConfigPath),
             'elastic-apm'
@@ -80,7 +79,6 @@ class ElasticApmServiceProvider extends ServiceProvider
 
         $this->app->alias(Agent::class, 'elastic-apm');
         $this->app->instance('query-log', $collection);
-
     }
 
     /**
@@ -169,8 +167,10 @@ class ElasticApmServiceProvider extends ServiceProvider
                 $sourceCode = $this->getSourceCode($trace);
 
                 return [
-                    'function' => Arr::get($trace, 'function') . Arr::get($trace, 'type') . Arr::get($trace,
-                            'function'),
+                    'function' => Arr::get($trace, 'function') . Arr::get($trace, 'type') . Arr::get(
+                        $trace,
+                        'function'
+                    ),
                     'abs_path' => Arr::get($trace, 'file'),
                     'filename' => basename(Arr::get($trace, 'file')),
                     'lineno' => Arr::get($trace, 'line', 0),
