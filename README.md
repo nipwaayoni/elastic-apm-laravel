@@ -1,51 +1,73 @@
 # PHP Elastic APM for Laravel & Lumen
 
-Laravel package of the https://github.com/nipwaayoni/elastic-apm-php-agent library, automatically handling transactions and errors/exceptions. If using `Illuminate\Support\Facades\Auth` the user Id added to the context.
-Tested with Laravel `5.6.*` and the nipwaayoni/elastic-apm-php-agent version `6.2.*`.
+[![Latest Stable Version](https://poser.pugx.org/nipwaayoni/elastic-apm-laravel/v)](//packagist.org/packages/nipwaayoni/elastic-apm-laravel)
+[![Total Downloads](https://poser.pugx.org/nipwaayoni/elastic-apm-laravel/downloads)](//packagist.org/packages/nipwaayoni/elastic-apm-laravel)
+[![Latest Unstable Version](https://poser.pugx.org/nipwaayoni/elastic-apm-laravel/v/unstable)](//packagist.org/packages/nipwaayoni/elastic-apm-laravel)
+[![Build Status](https://github.com/nipwaayoni/elastic-apm-laravel/workflows/CI/badge.svg)](https://travis-ci.org/nipwaayoni/elastic-apm-laravel)
+[![License](https://poser.pugx.org/nipwaayoni/elastic-apm-laravel/license)](//packagist.org/packages/nipwaayoni/elastic-apm-laravel)
+
+Laravel package of the [nipwaayoni/elastic-apm-php-agent](https://github.com/nipwaayoni/elastic-apm-php-agent) library, automatically handling transactions and errors/exceptions. If using `Illuminate\Support\Facades\Auth` the user Id added to the context.
+Tested with Laravel `5.6.*` and the nipwaayoni/elastic-apm-php-agent version `7.1.*`.
+
+This package is a continuation of the excellent work done by [philkra](https://github.com/philkra) at
+[philkra/elastic-apm-laravel](https://github.com/philkra/elastic-apm-laravel).
 
 ## Install
+
 ```
 composer require nipwaayoni/elastic-apm-laravel
 ```
 
 ## Middleware
+
 ### Laravel
+
 Register as (e.g.) global middleware to be called with every request. https://laravel.com/docs/5.6/middleware#global-middleware
 
 Register the middleware in `app/Http/Kernel.php`
+
 ```php
 protected $middleware = [
     // ... more middleware
-    \PhilKra\ElasticApmLaravel\Middleware\RecordTransaction::class,
+    \Nipwaayoni\ElasticApmLaravel\Middleware\RecordTransaction::class,
 ];
 ```
 
 ### Lumen
-In `bootstrap/app.php` register `PhilKra\ElasticApmLaravel\Middleware\RecordTransaction::class` as middleware:
+
+In `bootstrap/app.php` register `Nipwaayoni\ElasticApmLaravel\Middleware\RecordTransaction::class` as middleware:
+
 ```php
 $app->middleware([
-    PhilKra\ElasticApmLaravel\Middleware\RecordTransaction::class
+    Nipwaayoni\ElasticApmLaravel\Middleware\RecordTransaction::class
 ]);
 ```
 
 ## Service Provider
+
 ### Laravel
+
 No need to register service provider manually. It is registered automatically by [package discovery](https://laravel.com/docs/5.6/packages#package-discovery).
+
 ### Lumen
-In `bootstrap/app.php` register `\PhilKra\ElasticApmLaravel\Providers\ElasticApmServiceProvider::class` as service provider:
+
+In `bootstrap/app.php` register `\Nipwaayoni\ElasticApmLaravel\Providers\ElasticApmServiceProvider::class` as service provider:
+
 ```php
-$app->register(\PhilKra\ElasticApmLaravel\Providers\ElasticApmServiceProvider::class);
+$app->register(\Nipwaayoni\ElasticApmLaravel\Providers\ElasticApmServiceProvider::class);
 ```
 
 ## Spans
+
 ### Laravel
+
 A Transaction object is made available via the dependency container and can be used to start a
 new span at any point in the application. The Span will automatically add itself to the Transaction
 when it is ended.
 
 ```php
 // Use any normal Laravel method of resolving the dependency
-$transaction = app(\PhilKra\ElasticApmLaravel\Apm\Transaction::class);
+$transaction = app(\Nipwaayoni\ElasticApmLaravel\Apm\Transaction::class);
 
 $span = $transaction->startNewSpan('My Span', 'app.component_name');
 
@@ -75,6 +97,7 @@ use ElasticApm;
 ```
 
 ### Lumen
+
 not tested yet.
 
 ## Agent Configuration
