@@ -19,9 +19,6 @@
     "nipwaayoni/elastic-apm-php-agent": "7.1.0-beta",
     "ramsey/uuid": "^3.0"
   },
-  "require-dev": {
-    "phpunit/phpunit": "^7.5"
-  },
   "autoload": {
     "psr-4": {
       "Nipwaayoni\\ElasticApmLaravel\\": "src/"
@@ -45,15 +42,16 @@
   "config": {
     "optimize-autoloader": true
   },
-  "authors": [
+  "authors" : [
     {
-      "name": "Philip Krauss",
-      "email": "philip@philipkrauss.at",
-      "homepage": "https://github.com/philkra/elastic-apm-laravel"
-    },
-    {
-      "name": "George Boot",
-      "email": "george@entryninja.com"
+      "name" : "Dirk Tepe",
+      "email" : "dstepe@gmail.com",
+      "homepage" : "https://github.com/dstepe"
     }
-  ]
+  ],
+  "scripts": {
+    "fix": "\"./tools/php-cs-fixer\" --config=config/php-cs-fixer.php fix src/",
+    "ci:tests": "\"tools/phpunit\" tests/",
+    "ci:fixer": "\"./tools/php-cs-fixer\" --config=config/php-cs-fixer.php fix --dry-run -v --show-progress=dots --diff-format=udiff src/"
+  }
 }

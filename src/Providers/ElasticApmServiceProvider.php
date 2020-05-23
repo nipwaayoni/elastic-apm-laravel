@@ -18,7 +18,7 @@ class ElasticApmServiceProvider extends ServiceProvider
     /** @var float */
     private $startTime;
     /** @var string  */
-    private $sourceConfigPath = __DIR__ . '/../../config/elastic-apm.php';
+    private $sourceConfigPath = __DIR__ . '/../config/elastic-apm.php';
 
     /**
      * Bootstrap the application services.
