@@ -2,7 +2,6 @@
 
 namespace Nipwaayoni\ElasticApmLaravel\Apm;
 
-
 use Nipwaayoni\Helper\Timer;
 
 /*

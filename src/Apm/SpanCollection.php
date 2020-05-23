@@ -2,7 +2,6 @@
 
 namespace Nipwaayoni\ElasticApmLaravel\Apm;
 
-
 use Illuminate\Support\Collection;
 
 /*
@@ -11,5 +10,4 @@ use Illuminate\Support\Collection;
  */
 class SpanCollection extends Collection
 {
-
 }
