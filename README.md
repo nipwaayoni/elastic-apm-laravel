@@ -3,7 +3,7 @@
 [![Latest Stable Version](https://poser.pugx.org/nipwaayoni/elastic-apm-laravel/v)](//packagist.org/packages/nipwaayoni/elastic-apm-laravel)
 [![Total Downloads](https://poser.pugx.org/nipwaayoni/elastic-apm-laravel/downloads)](//packagist.org/packages/nipwaayoni/elastic-apm-laravel)
 [![Latest Unstable Version](https://poser.pugx.org/nipwaayoni/elastic-apm-laravel/v/unstable)](//packagist.org/packages/nipwaayoni/elastic-apm-laravel)
-[![Build Status](https://github.com/nipwaayoni/elastic-apm-laravel/workflows/CI/badge.svg)](https://travis-ci.org/nipwaayoni/elastic-apm-laravel)
+[![Build Status](https://github.com/nipwaayoni/elastic-apm-laravel/workflows/CI/badge.svg)](https://github.com/nipwaayoni/elastic-apm-laravel/actions?query=workflow%3ACI)
 [![License](https://poser.pugx.org/nipwaayoni/elastic-apm-laravel/license)](//packagist.org/packages/nipwaayoni/elastic-apm-laravel)
 
 Laravel package of the [nipwaayoni/elastic-apm-php-agent](https://github.com/nipwaayoni/elastic-apm-php-agent) library, automatically handling transactions and errors/exceptions. If using `Illuminate\Support\Facades\Auth` the user Id added to the context.

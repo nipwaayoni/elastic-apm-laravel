@@ -53,8 +53,8 @@
     }
   ],
   "scripts": {
-    "fix": "\"./tools/php-cs-fixer\" --config=config/php-cs-fixer.php fix src/",
+    "cs-fix": "\"./tools/php-cs-fixer\" --config=config/php-cs-fixer.php fix src/",
     "ci:tests": "\"tools/phpunit\" tests/",
-    "ci:fixer": "\"./tools/php-cs-fixer\" --config=config/php-cs-fixer.php fix --dry-run -v --show-progress=dots --diff-format=udiff src/"
+    "ci:cs-check": "\"./tools/php-cs-fixer\" --config=config/php-cs-fixer.php fix --dry-run -v --show-progress=dots --diff-format=udiff src/"
   }
 }
