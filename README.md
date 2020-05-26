@@ -18,6 +18,20 @@ This package is a continuation of the excellent work done by [philkra](https://g
 composer require nipwaayoni/elastic-apm-laravel
 ```
 
+## Service Provider
+
+### Laravel
+
+No need to register service provider manually. It is registered automatically by [package discovery](https://laravel.com/docs/5.6/packages#package-discovery).
+
+### Lumen
+
+In `bootstrap/app.php` register `\Nipwaayoni\ElasticApmLaravel\Providers\ElasticApmServiceProvider::class` as service provider:
+
+```php
+$app->register(\Nipwaayoni\ElasticApmLaravel\Providers\ElasticApmServiceProvider::class);
+```
+
 ## Middleware
 
 ### Laravel
@@ -43,51 +57,66 @@ $app->middleware([
 ]);
 ```
 
-## Service Provider
+## Events
 
-### Laravel
+The Elastic APM service supports a variety of event types. This package currently supports only a subset as described here.
 
-No need to register service provider manually. It is registered automatically by [package discovery](https://laravel.com/docs/5.6/packages#package-discovery).
+### Transaction Event
 
-### Lumen
+The `RecordTransaction` middleware automatically starts a new Transaction for the current HTTP Request. 
+All additional events will be descendents of this transaction.
 
-In `bootstrap/app.php` register `\Nipwaayoni\ElasticApmLaravel\Providers\ElasticApmServiceProvider::class` as service provider:
+There is currently no provision to manage additional Transaction events, or to handle a non-HTTP Request
+based process. We hope to address those issues in a future release.
+
+### Span Events
+
+Spans occur within a Transaction. Spans represent events within the Transaction. Queries made through Laravel's 
+database layer are automatically added to the Transaction. You can add your own Span events using the `EventTimer` 
+class from this package. 
+
+Nested Spans are not supported by this package yet.
+
+#### Laravel
+
+Acquire the EventTimer object from the container.
 
 ```php
-$app->register(\Nipwaayoni\ElasticApmLaravel\Providers\ElasticApmServiceProvider::class);
+class MyClass
+{
+    /**
+     * @var EventTimer
+     */
+    private $eventTimer;
+    
+    public function __construct(EventTimer $eventTimer)
+    {
+        $this->eventTimer = $eventTimer;
+    }
+
+    public function runSomeRequest(int $number): AnObject
+    {
+        $event = $this->eventTimer->begin('Request the data');
+        $result = $this->someMethod($number);
+        $this->eventTimer->finish($event);
+
+        return new AnObject($result);
+    }
+}
 ```
 
-## Spans
-
-### Laravel
-
-A Transaction object is made available via the dependency container and can be used to start a
-new span at any point in the application. The Span will automatically add itself to the Transaction
-when it is ended.
-
-```php
-// Use any normal Laravel method of resolving the dependency
-$transaction = app(\Nipwaayoni\ElasticApmLaravel\Apm\Transaction::class);
-
-$span = $transaction->startNewSpan('My Span', 'app.component_name');
-
-// do some stuff
-
-$span->end();
-```
-### Lumen
+#### Lumen
 
 pending
 
-## Error/Exception Handling
+### Error Events
 
-### Laravel
+#### Laravel
 
 In `app/Exceptions/Handler`, add the following to the `report` method:
 
 ```php
 ElasticApm::captureThrowable($exception);
-ElasticApm::send();
 ```
 
 Make sure to import the facade at the top of your file:
@@ -96,9 +125,9 @@ Make sure to import the facade at the top of your file:
 use ElasticApm;
 ```
 
-### Lumen
+#### Lumen
 
-not tested yet.
+pending
 
 ## Agent Configuration
 

@@ -16,8 +16,8 @@
     "illuminate/http": ">= 6.0 < 8",
     "illuminate/routing": ">= 6.0 < 8",
     "illuminate/support": ">= 6.0 < 8",
-    "nipwaayoni/elastic-apm-php-agent": "7.1.0-beta",
-    "ramsey/uuid": "^3.0"
+    "nipwaayoni/elastic-apm-php-agent": "7.1.0-rc1",
+    "ramsey/uuid": ">= 3.0 < 5.0"
   },
   "require-dev": {
     "orchestra/testbench": "^5.2"
