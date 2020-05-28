@@ -12,7 +12,7 @@
   "license": "MIT",
   "require": {
     "php": ">= 7.2",
-    "nipwaayoni/elastic-apm-php-agent": "7.1.0-rc1",
+    "nipwaayoni/elastic-apm-php-agent": "dev-7.1-dev",
     "ramsey/uuid": ">= 3.0 < 5.0"
   },
   "require-dev": {
