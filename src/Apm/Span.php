@@ -1,51 +1,35 @@
 <?php
 
+
 namespace Nipwaayoni\ElasticApmLaravel\Apm;
 
-use Nipwaayoni\Helper\Timer;
+use Nipwaayoni\Events\EventBean;
 
-/*
- * Eventually this class could be a proxy for a Span provided by the
- * Elastic APM package.
+/**
+ * Class Span
+ * @package Nipwaayoni\ElasticApmLaravel\Apm
+ *
+ * This is a simple proxy class to hide the \Nipwaayoni\Events\Span class from
+ * outside consumers.
  */
 class Span
 {
-    /** @var Timer */
-    private $timer;
-    /** @var SpanCollection  */
-    private $collection;
+    /** @var \Nipwaayoni\Events\Span  */
+    private $span;
 
-    private $name = 'Transaction Span';
-    private $type = 'app.span';
-
-    private $start;
-
-    public function __construct(Timer $timer, SpanCollection $collection)
+    public function __construct(string $name, EventBean $parentEvent = null)
     {
-        $this->timer = $timer;
-        $this->collection = $collection;
-
-        $this->start = $timer->getElapsedInMilliseconds();
+        $this->span = new \Nipwaayoni\Events\Span($name, $parentEvent);
+        $this->span->start();
     }
 
-    public function setName(string $name)
+    public function stop(): void
     {
-        $this->name = $name;
+        $this->span->stop();
     }
 
-    public function setType(string $type)
+    public function event(): \Nipwaayoni\Events\Span
     {
-        $this->type = $type;
-    }
-
-    public function end()
-    {
-        $duration = round($this->timer->getElapsedInMilliseconds() - $this->start, 3);
-        $this->collection->push([
-            'name' => $this->name,
-            'type' => $this->type,
-            'start' => $this->start,
-            'duration' => $duration,
-        ]);
+        return $this->span;
     }
 }

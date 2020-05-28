@@ -8,8 +8,6 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Nipwaayoni\Agent;
-use Nipwaayoni\ElasticApmLaravel\Apm\SpanCollection;
-use Nipwaayoni\ElasticApmLaravel\Apm\Transaction;
 use Nipwaayoni\ElasticApmLaravel\Contracts\VersionResolver;
 use Nipwaayoni\Helper\Timer;
 
@@ -69,16 +67,11 @@ class ElasticApmServiceProvider extends ServiceProvider
         });
 
         $this->startTime = $this->app['request']->server('REQUEST_TIME_FLOAT') ?? microtime(true);
-        $timer = new Timer($this->startTime);
-
-        $collection = new SpanCollection();
-
-        $this->app->instance(Transaction::class, new Transaction($collection, $timer));
-
-        $this->app->instance(Timer::class, $timer);
+        $this->app->instance(Timer::class, new Timer($this->startTime));
 
         $this->app->alias(Agent::class, 'elastic-apm');
-        $this->app->instance('query-log', $collection);
+
+        $this->app->instance('query-log', new Collection());
     }
 
     /**

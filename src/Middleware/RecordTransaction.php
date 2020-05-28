@@ -18,6 +18,18 @@ class RecordTransaction
      */
     private $timer;
 
+    private static $transactionName;
+
+    public static function setTransactionName(string $name)
+    {
+        self::$transactionName = $name;
+    }
+
+    public static function getTransactionName()
+    {
+        return self::$transactionName;
+    }
+
     /**
      * RecordTransaction constructor.
      * @param Agent $agent
@@ -36,8 +48,9 @@ class RecordTransaction
      */
     public function handle($request, Closure $next)
     {
+        self::setTransactionName($this->getTransactionNameFromRequest($request));
         $transaction = $this->agent->startTransaction(
-            $this->getTransactionName($request)
+            self::getTransactionName()
         );
 
         // await the outcome
@@ -64,13 +77,22 @@ class RecordTransaction
             'type' => 'HTTP'
         ]);
 
-        $transaction->setSpans(app('query-log')->toArray());
+        foreach (app('query-log') as $query) {
+            $span = new \Nipwaayoni\Events\Span($query['name'], $transaction);
+            $span->setDuration($query['duration']);
+            $span->setCustomContext($query['context']);
+            $span->setStacktrace($query['stacktrace']->toArray());
+
+            $this->agent->putEvent($span);
+        }
 
         if (config('elastic-apm.transactions.use_route_uri')) {
             $transaction->setTransactionName($this->getRouteUriTransactionName($request));
         }
 
         $transaction->stop($this->timer->getElapsedInMilliseconds());
+
+        $this->agent->send();
 
         return $response;
     }
@@ -97,7 +119,7 @@ class RecordTransaction
      *
      * @return string
      */
-    protected function getTransactionName(\Illuminate\Http\Request $request): string
+    protected function getTransactionNameFromRequest(\Illuminate\Http\Request $request): string
     {
         // fix leading /
         $path = ($request->server->get('REQUEST_URI') == '') ? '/' : $request->server->get('REQUEST_URI');
