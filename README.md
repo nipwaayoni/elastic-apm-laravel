@@ -22,7 +22,9 @@ composer require nipwaayoni/elastic-apm-laravel
 
 ### Laravel
 
-No need to register service provider manually. It is registered automatically by [package discovery](https://laravel.com/docs/5.6/packages#package-discovery).
+If using Laravel >=5.5, registration is done automatically by [package discovery](https://laravel.com/docs/7.x/packages#package-discovery).
+
+This package is not tested or asserted to work with Laravel <5.5.
 
 ### Lumen
 
@@ -142,7 +144,7 @@ The following environment variables are supported in the default configuration:
 |APM_APPVERSION     | Version of the app as it will appear in APM. |
 |APM_SERVERURL      | URL to the APM intake service. |
 |APM_SECRETTOKEN    | Secret token, if required. |
-|APM_APIVERSION     | APM API version, defaults to `v1` (only v1 is supported at this time). |
+|APM_APIVERSION     | APM API version, defaults to `v2` (only v2 is supported at this time). |
 |APM_USEROUTEURI    | `true` or `false` defaults to `false`. The default behavior is to record the URL as sent in the request. This can result in excessive unique entries in APM. Set to `true` to have the agent use the route URL instead. |
 |APM_QUERYLOG       | `true` or `false` defaults to 'true'. Set to `false` to completely disable query logging, or to `auto` if you would like to use the threshold feature. |
 |APM_THRESHOLD      | Query threshold in milliseconds, defaults to `200`. If a query takes longer then 200ms, we enable the query log. Make sure you set `APM_QUERYLOG=auto`. |
