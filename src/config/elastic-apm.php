@@ -3,6 +3,7 @@
 return [
     // Sets whether the apm reporting should be active or not
     'active'        => env('APM_ACTIVE', true),
+    'environment'   => env('APM_ENVIRONMENT', 'development'),
 
     'app' => [
         // The app name that will identify your app in Kibana / Elastic APM
@@ -12,16 +13,8 @@ return [
         'appVersion'    => env('APM_APPVERSION', ''),
     ],
 
-    'env' => [
-        // whitelist environment variables OR send everything
-        'env' => ['DOCUMENT_ROOT', 'REMOTE_ADDR'],
-        //'env' => []
-        // Application environment
-        'environment'   => env('APM_ENVIRONMENT', 'development'),
-    ],
-
-    // GuzzleHttp\Client options (http://docs.guzzlephp.org/en/stable/request-options.html#request-options)
-    'httpClient' => [],
+    // list allowed environment variables OR empty array to send everything
+    'env' => ['DOCUMENT_ROOT', 'REMOTE_ADDR'],
 
     'server' => [
         // The apm-server to connect to

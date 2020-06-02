@@ -18,6 +18,8 @@ This package is a continuation of the excellent work done by [philkra](https://g
 composer require nipwaayoni/elastic-apm-laravel
 ```
 
+The [nipwaayoni/elastic-apm-php-agent](https://github.com/nipwaayoni/elastic-apm-php-agent) no longer includes and http client. You must ensure a [PSR-18](https://www.php-fig.org/psr/psr-18/) compatible implementation is available. Please see the [agent install guide](https://github.com/nipwaayoni/elastic-apm-php-agent/blob/master/docs/install.md) for more information.
+
 ## Service Provider
 
 ### Laravel
@@ -75,92 +77,31 @@ based process. We hope to address those issues in a future release.
 
 Spans occur within a Transaction. Spans represent events within the Transaction. Queries made through Laravel's 
 database layer are automatically added to the Transaction. You can add your own Span events using the `EventTimer` 
-class from this package. 
+class from this package. See the docs for [creating spans](docs/creating_spans.md).
 
 Nested Spans are not supported by this package yet.
 
-#### Laravel
-
-Acquire the EventTimer object from the container.
-
-```php
-class MyClass
-{
-    /**
-     * @var EventTimer
-     */
-    private $eventTimer;
-    
-    public function __construct(EventTimer $eventTimer)
-    {
-        $this->eventTimer = $eventTimer;
-    }
-
-    public function runSomeRequest(int $number): AnObject
-    {
-        $event = $this->eventTimer->begin('Request the data');
-        $result = $this->someMethod($number);
-        $this->eventTimer->finish($event);
-
-        return new AnObject($result);
-    }
-}
-```
-
-#### Lumen
-
-pending
-
 ### Error Events
 
-#### Laravel
-
-In `app/Exceptions/Handler`, add the following to the `report` method:
-
-```php
-ElasticApm::captureThrowable($exception);
-```
-
-Make sure to import the facade at the top of your file:
-
-```php
-use ElasticApm;
-```
-
-#### Lumen
-
-pending
+The APM service defines exception events as a valid type. Exceptions in your application can be sent to APM in addition to any normal exception handling. See the docs for [exceptions](docs/exceptions.md).
 
 ## Agent Configuration
 
-### Laravel
-
-The following environment variables are supported in the default configuration:
+You can use a number of environment settings to influence the behavior of this package. At a minimum, you must set the APM server URL and, if applicable, the secret toke:
 
 | Variable          | Description |
 |-------------------|-------------|
-|APM_ACTIVE         | `true` or `false` defaults to `true`. If `false`, the agent will collect, but not send, transaction data. |
-|APM_APPNAME        | Name of the app as it will appear in APM. |
-|APM_APPVERSION     | Version of the app as it will appear in APM. |
 |APM_SERVERURL      | URL to the APM intake service. |
 |APM_SECRETTOKEN    | Secret token, if required. |
-|APM_APIVERSION     | APM API version, defaults to `v2` (only v2 is supported at this time). |
-|APM_USEROUTEURI    | `true` or `false` defaults to `false`. The default behavior is to record the URL as sent in the request. This can result in excessive unique entries in APM. Set to `true` to have the agent use the route URL instead. |
-|APM_QUERYLOG       | `true` or `false` defaults to 'true'. Set to `false` to completely disable query logging, or to `auto` if you would like to use the threshold feature. |
-|APM_THRESHOLD      | Query threshold in milliseconds, defaults to `200`. If a query takes longer then 200ms, we enable the query log. Make sure you set `APM_QUERYLOG=auto`. |
-|APM_BACKTRACEDEPTH | Defaults to `25`. Depth of backtrace in query span. |
-|APM_RENDERSOURCE   | Defaults to `true`. Include source code in query span. |
 
-You may also publish the `elastic-apm.php` configuration file to change additional settings:
+Refer to the [configuration docs](docs/configuration.md) for more information.
 
-```bash
-php artisan vendor:publish --tag=config
-```
+### HTTP Client Customization
 
-Once published, open the `config/elastic-apm.php` file and review the various settings.
+It is no longer possible to provide HTTP client options through the APM PHP Agent configuration. If you need to customize the HTTP client, you must implement and configure a suitable client object and properly register it with the Laravel service container. See the "HTTP Client Configuation" section of the [configuration docs](docs/configuration.md).
 
-### Laravel Test Setup
+## Laravel Test Setup
 
 Laravel provides classes to support running unit and feature tests with PHPUnit. In most cases, you will want to explicitly disable APM during testing since it is enabled by default. Refer to the Laravel documentation for more information (https://laravel.com/docs/5.7/testing).
 
-Because the APM agent checks it's active status using a strict boolean type, you must ensure your `APM_ACTIVE` value is a boolean `false` rather than simply a falsy value. The best way to accomplish this is to create an `.env.testing` file and include `APM_ACTIVE=false`, along with any other environment settings required for your tests. This file should be safe to include in your SCM.
+Because the APM agent checks its active status using a strict boolean type, you must ensure your `APM_ACTIVE` value is a boolean `false` rather than simply a falsy value. The best way to accomplish this is to create an `.env.testing` file and include `APM_ACTIVE=false`, along with any other environment settings required for your tests. This file should be safe to include in your SCM.
