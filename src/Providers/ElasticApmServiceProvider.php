@@ -8,8 +8,11 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Nipwaayoni\Agent;
+use Nipwaayoni\AgentBuilder;
+use Nipwaayoni\Config;
 use Nipwaayoni\ElasticApmLaravel\Contracts\VersionResolver;
 use Nipwaayoni\Helper\Timer;
+use Psr\Container\ContainerInterface;
 
 class ElasticApmServiceProvider extends ServiceProvider
 {
@@ -49,21 +52,44 @@ class ElasticApmServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(Agent::class, function ($app) {
-            return new Agent(
+            $container = resolve(ContainerInterface::class);
+
+            $builder = new AgentBuilder();
+            $builder->withConfig(new Config(
                 array_merge(
                     [
+                        'active' => config('elastic-apm.active'),
                         'framework' => 'Laravel',
                         'frameworkVersion' => app()->version(),
                     ],
-                    [
-                        'active' => config('elastic-apm.active'),
-                        'httpClient' => config('elastic-apm.httpClient'),
-                    ],
                     $this->getAppConfig(),
-                    config('elastic-apm.env'),
                     config('elastic-apm.server')
                 )
-            );
+            ));
+
+            $builder->withEnvData(config('elastic-apm.env'));
+
+            if ($container->has('ElasticApmEventFactory')) {
+                $builder->withEventFactory($container->get('ElasticApmEventFactory'));
+            }
+
+            if ($container->has('ElasticApmTransactionStore')) {
+                $builder->withTransactionStore($container->get('ElasticApmTransactionStore'));
+            }
+
+            if ($container->has('ElasticApmHttpClient')) {
+                $builder->withHttpClient($container->get('ElasticApmHttpClient'));
+            }
+
+            if ($container->has('ElasticApmRequestFactory')) {
+                $builder->withRequestFactory($container->get('ElasticApmRequestFactory'));
+            }
+
+            if ($container->has('ElasticApmStreamFactory')) {
+                $builder->withStreamFactory($container->get('ElasticApmStreamFactory'));
+            }
+
+            return $builder->build();
         });
 
         $this->startTime = $this->app['request']->server('REQUEST_TIME_FLOAT') ?? microtime(true);
