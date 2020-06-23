@@ -54,6 +54,7 @@ You may override the following methods to manage context data:
 RecordTransaction::response(Response $response): array; 
 RecordTransaction::metadata(Response $response): array; 
 RecordTransaction::userContext(Request $request): array;
+RecordTransaction::customContext(Request $request, Response $response): array;
 ```
 
 These methods must return an array of key/value pairs suitable for using the associated contexts.

@@ -71,6 +71,7 @@ class RecordTransaction
         $transaction->setResponse($this->response($response));
         $transaction->setMeta($this->metadata($response));
         $transaction->setUserContext($this->userContext($request));
+        $transaction->setCustomContext($this->customContext($request, $response));
 
         foreach (app('query-log') as $query) {
             $span = new \Nipwaayoni\Events\Span($query['name'], $transaction);
@@ -134,6 +135,11 @@ class RecordTransaction
             'ip' => $request->ip(),
             'user-agent' => $request->userAgent(),
         ];
+    }
+
+    protected function customContext(Request $request, Response $response): array
+    {
+        return [];
     }
 
     /**
