@@ -75,6 +75,7 @@ class RecordTransaction
 
         foreach (app('query-log') as $query) {
             $span = new \Nipwaayoni\Events\Span($query['name'], $transaction);
+            $span->start($query['start']);
             $span->setDuration($query['duration']);
             $span->setCustomContext($query['context']);
             $span->setStacktrace($query['stacktrace']->toArray());

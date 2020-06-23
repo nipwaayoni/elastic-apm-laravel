@@ -204,8 +204,8 @@ class ElasticApmServiceProvider extends ServiceProvider
             $query = [
                 'name' => 'Eloquent Query',
                 'type' => 'db.mysql.query',
-                'start' => round((microtime(true) - $query->time / 1000 - $this->startTime) * 1000, 3),
-                // calculate start time from duration
+                // calculate start time from duration, best we can do
+                'start' => microtime(true) - ($query->time / 1000),
                 'duration' => round($query->time, 3),
                 'stacktrace' => $stackTrace,
                 'context' => [
