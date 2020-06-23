@@ -4,6 +4,7 @@ namespace Nipwaayoni\ElasticApmLaravel\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Nipwaayoni\Agent;
@@ -49,7 +50,7 @@ class RecordTransaction
      * @param  Closure $next [description]
      * @return [type]           [description]
      */
-    public function handle($request, Closure $next)
+    final public function handle($request, Closure $next)
     {
         self::setTransactionName($this->getTransactionNameFromRequest($request));
         $transaction = $this->agent->startTransaction(
@@ -59,26 +60,9 @@ class RecordTransaction
         // await the outcome
         $response = $next($request);
 
-        $transaction->setResponse([
-            'finished' => true,
-            'headers_sent' => true,
-            'status_code' => $response->getStatusCode(),
-            'headers' => $this->formatHeaders($response->headers->all()),
-        ]);
-
-        $user = $request->user();
-        $transaction->setUserContext([
-            'id' => optional($user)->id,
-            'email' => optional($user)->email,
-            'username' => optional($user)->user_name,
-            'ip' => $request->ip(),
-            'user-agent' => $request->userAgent(),
-        ]);
-
-        $transaction->setMeta([
-            'result' => $response->getStatusCode(),
-            'type' => 'HTTP'
-        ]);
+        $transaction->setResponse($this->response($response));
+        $transaction->setMeta($this->metadata($response));
+        $transaction->setUserContext($this->userContext($request));
 
         foreach (app('query-log') as $query) {
             $span = new \Nipwaayoni\Events\Span($query['name'], $transaction);
@@ -104,6 +88,37 @@ class RecordTransaction
         return $response;
     }
 
+    protected function response(Response $response): array
+    {
+        return [
+            'finished' => true,
+            'headers_sent' => true,
+            'status_code' => $response->getStatusCode(),
+            'headers' => $this->formatHeaders($response->headers->all()),
+        ];
+    }
+
+    protected function metadata(Response $response): array
+    {
+        return [
+            'result' => $response->getStatusCode(),
+            'type' => 'HTTP'
+        ];
+    }
+
+    protected function userContext(Request $request): array
+    {
+        $user = $request->user();
+
+        return [
+            'id' => optional($user)->id,
+            'email' => optional($user)->email,
+            'username' => optional($user)->user_name,
+            'ip' => $request->ip(),
+            'user-agent' => $request->userAgent(),
+        ];
+    }
+
     /**
      * Perform any final actions for the request lifecycle.
      *
@@ -126,7 +141,7 @@ class RecordTransaction
      *
      * @return string
      */
-    protected function getTransactionNameFromRequest(\Illuminate\Http\Request $request): string
+    private function getTransactionNameFromRequest(\Illuminate\Http\Request $request): string
     {
         // fix leading /
         $path = ($request->server->get('REQUEST_URI') == '') ? '/' : $request->server->get('REQUEST_URI');
@@ -143,7 +158,7 @@ class RecordTransaction
      *
      * @return string
      */
-    protected function getTransactionRouteUri(\Illuminate\Http\Request $request): string
+    private function getTransactionRouteUri(\Illuminate\Http\Request $request): string
     {
         $route = Route::current();
 
