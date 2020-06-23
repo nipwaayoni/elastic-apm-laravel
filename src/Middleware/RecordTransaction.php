@@ -162,7 +162,6 @@ class RecordTransaction
      */
     private function getTransactionNameFromRequest(\Illuminate\Http\Request $request): string
     {
-        // fix leading /
         $path = ($request->server->get('REQUEST_URI') == '') ? '/' : $request->server->get('REQUEST_URI');
 
         return $this->makeTransactionName($request->server->get('REQUEST_METHOD'), $path);
@@ -182,11 +181,15 @@ class RecordTransaction
         }
 
         // prepend route uri to be consistent with request uri
-        return $this->makeTransactionName($request->server->get('REQUEST_METHOD'), '/' . $route->uri());
+        return $this->makeTransactionName($request->server->get('REQUEST_METHOD'), $route->uri());
     }
 
     private function makeTransactionName(string $method, string $path): string
     {
+        if (strpos($path, '/') !== 0) {
+            $path = '/' . $path;
+        }
+
         return sprintf("%s %s", $method, $path);
     }
 }
