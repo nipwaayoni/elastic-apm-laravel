@@ -4,7 +4,7 @@ namespace Nipwaayoni\ElasticApmLaravel\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Nipwaayoni\Agent;
