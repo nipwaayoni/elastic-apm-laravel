@@ -151,7 +151,7 @@ class RecordTransaction
     protected function formatHeaders(array $headers): array
     {
         return collect($headers)->map(function ($values, $header) {
-            return head($values);
+            return (string) head($values);
         })->toArray();
     }
 
@@ -181,7 +181,8 @@ class RecordTransaction
             throw new ElasticApmNoCurrentRouteException();
         }
 
-        return $this->makeTransactionName($request->server->get('REQUEST_METHOD'), $route->uri());
+        // prepend route uri to be consistent with request uri
+        return $this->makeTransactionName($request->server->get('REQUEST_METHOD'), '/' . $route->uri());
     }
 
     private function makeTransactionName(string $method, string $path): string
