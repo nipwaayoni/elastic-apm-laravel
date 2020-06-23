@@ -3,8 +3,11 @@
 namespace Nipwaayoni\ElasticApmLaravel\Middleware;
 
 use Closure;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Nipwaayoni\Agent;
+use Nipwaayoni\ElasticApmLaravel\Exceptions\ElasticApmNoCurrentRouteException;
 use Nipwaayoni\Helper\Timer;
 
 class RecordTransaction
@@ -87,7 +90,11 @@ class RecordTransaction
         }
 
         if (config('elastic-apm.transactions.use_route_uri')) {
-            $transaction->setTransactionName($this->getRouteUriTransactionName($request));
+            try {
+                $transaction->setTransactionName($this->getTransactionRouteUri($request));
+            } catch (ElasticApmNoCurrentRouteException $e) {
+                Log::error('No current route when getting uri');
+            }
         }
 
         $transaction->stop($this->timer->getElapsedInMilliseconds());
@@ -136,14 +143,18 @@ class RecordTransaction
      *
      * @return string
      */
-    protected function getRouteUriTransactionName(\Illuminate\Http\Request $request): string
+    protected function getTransactionRouteUri(\Illuminate\Http\Request $request): string
     {
-        $path = ($request->path() === '/') ? '' : $request->path();
+        $route = Route::current();
+
+        if (null === $route) {
+            throw new ElasticApmNoCurrentRouteException();
+        }
 
         return sprintf(
-            "%s /%s",
+            "%s %s",
             $request->server->get('REQUEST_METHOD'),
-            $path
+            $route->uri()
         );
     }
 
