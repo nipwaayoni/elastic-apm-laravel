@@ -51,6 +51,10 @@ protected $middleware = [
 ];
 ```
 
+#### Customizing Transactions
+
+The provided middleware adds request and response context data to the transaction. If the existing behavior does not suit your needs, you can provide your own middleware by overriding the class. See the documentation on [customizing transactions](docs/customizing_transactions.md) for more information.
+
 ### Lumen
 
 In `bootstrap/app.php` register `Nipwaayoni\ElasticApmLaravel\Middleware\RecordTransaction::class` as middleware:
