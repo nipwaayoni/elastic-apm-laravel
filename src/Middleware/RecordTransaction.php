@@ -57,8 +57,16 @@ class RecordTransaction
             self::getTransactionName()
         );
 
-        // await the outcome
         $response = $next($request);
+
+        // Rename the transaction if using route uri (route may only available after next)
+        if (config('elastic-apm.transactions.use_route_uri')) {
+            try {
+                $transaction->setTransactionName($this->getTransactionRouteUri($request));
+            } catch (ElasticApmNoCurrentRouteException $e) {
+                Log::error('No current route when getting uri');
+            }
+        }
 
         $transaction->setResponse($this->response($response));
         $transaction->setMeta($this->metadata($response));
@@ -73,19 +81,28 @@ class RecordTransaction
             $this->agent->putEvent($span);
         }
 
-        if (config('elastic-apm.transactions.use_route_uri')) {
-            try {
-                $transaction->setTransactionName($this->getTransactionRouteUri($request));
-            } catch (ElasticApmNoCurrentRouteException $e) {
-                Log::error('No current route when getting uri');
-            }
-        }
-
         $transaction->stop($this->timer->getElapsedInMilliseconds());
 
         $this->agent->send();
 
         return $response;
+    }
+
+    /**
+     * Perform any final actions for the request lifecycle.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Symfony\Component\HttpFoundation\Response $response
+     *
+     * @return void
+     */
+    public function terminate($request, $response)
+    {
+        try {
+            $this->agent->send();
+        } catch (\Throwable $t) {
+            Log::error($t);
+        }
     }
 
     protected function response(Response $response): array
@@ -120,20 +137,15 @@ class RecordTransaction
     }
 
     /**
-     * Perform any final actions for the request lifecycle.
+     * @param array $headers
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Symfony\Component\HttpFoundation\Response $response
-     *
-     * @return void
+     * @return array
      */
-    public function terminate($request, $response)
+    protected function formatHeaders(array $headers): array
     {
-        try {
-            $this->agent->send();
-        } catch (\Throwable $t) {
-            Log::error($t);
-        }
+        return collect($headers)->map(function ($values, $header) {
+            return head($values);
+        })->toArray();
     }
 
     /**
@@ -146,11 +158,7 @@ class RecordTransaction
         // fix leading /
         $path = ($request->server->get('REQUEST_URI') == '') ? '/' : $request->server->get('REQUEST_URI');
 
-        return sprintf(
-            "%s %s",
-            $request->server->get('REQUEST_METHOD'),
-            $path
-        );
+        return $this->makeTransactionName($request->server->get('REQUEST_METHOD'), $path);
     }
 
     /**
@@ -166,22 +174,11 @@ class RecordTransaction
             throw new ElasticApmNoCurrentRouteException();
         }
 
-        return sprintf(
-            "%s %s",
-            $request->server->get('REQUEST_METHOD'),
-            $route->uri()
-        );
+        return $this->makeTransactionName($request->server->get('REQUEST_METHOD'), $route->uri());
     }
 
-    /**
-     * @param array $headers
-     *
-     * @return array
-     */
-    protected function formatHeaders(array $headers): array
+    private function makeTransactionName(string $method, string $path): string
     {
-        return collect($headers)->map(function ($values, $header) {
-            return head($values);
-        })->toArray();
+        return sprintf("%s %s", $method, $path);
     }
 }
