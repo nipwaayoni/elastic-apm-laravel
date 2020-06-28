@@ -54,7 +54,7 @@ class ElasticApmServiceProvider extends ServiceProvider
         $this->app->singleton(Agent::class, function ($app) {
             $container = resolve(ContainerInterface::class);
 
-            $builder = new AgentBuilder();
+            $builder = resolve(AgentBuilder::class);
             $builder->withConfig(new Config(
                 array_merge(
                     [
