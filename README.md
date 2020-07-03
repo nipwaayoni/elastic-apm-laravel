@@ -77,6 +77,18 @@ All additional events will be descendents of this transaction.
 There is currently no provision to manage additional Transaction events, or to handle a non-HTTP Request
 based process. We hope to address those issues in a future release.
 
+#### Customizing Transaction Context
+
+While the `RecordTransaction` middleware sets supported APM contexts when the transaction is created, you may wish to customize the contexts based on the completed request/response. This can be done by extending the `RecordTransaction` middleware and overriding context methods as described in the [customizing transactions](docs/customizing_transactions.md) documentation.
+
+#### Excluding Requests
+
+You can exclude requests from being sent to APM by using an `except` list of URI patterns. For example, you may wish to avoid sending requests for the (DebugBar)[https://github.com/barryvdh/laravel-debugbar] resources during development or testing.
+
+Add the desired URI patterns to the `except` key in the `elastic-apm` configuration. Note that you must publish the file as described in the [configuration docs](docs/configuration.md).
+
+If you have extended the `RecordTransaction` middleware, as described in the [customizing transactions](docs/customizing_transactions.md) documentation, you may set the `except` list class member there.
+
 ### Span Events
 
 Spans occur within a Transaction. Spans represent events within the Transaction. Queries made through Laravel's 

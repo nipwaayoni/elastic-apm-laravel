@@ -17,6 +17,9 @@ class RecordTransaction
      * @var Agent
      */
     protected $agent;
+
+    protected $except = [];
+
     /**
      * @var Timer
      */
@@ -37,6 +40,7 @@ class RecordTransaction
     /**
      * RecordTransaction constructor.
      * @param Agent $agent
+     * @param Timer $timer
      */
     public function __construct(Agent $agent, Timer $timer)
     {
@@ -52,6 +56,10 @@ class RecordTransaction
      */
     final public function handle($request, Closure $next)
     {
+        if ($this->inExceptArray($request)) {
+            return $next($request);
+        }
+
         self::setTransactionName($this->getTransactionNameFromRequest($request));
         $transaction = $this->agent->startTransaction(
             self::getTransactionName()
@@ -174,5 +182,32 @@ class RecordTransaction
         }
 
         return sprintf("%s %s", $method, $path);
+    }
+
+    /**
+     * Determine if the request has a URI that should be recorded.
+     * From \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return bool
+     */
+    protected function inExceptArray($request)
+    {
+        $exceptList = array_merge(
+            $this->except,
+            config('elastic-apm.except', [])
+        );
+
+        foreach ($exceptList as $except) {
+            if ($except !== '/') {
+                $except = trim($except, '/');
+            }
+
+            if ($request->fullUrlIs($except) || $request->is($except)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

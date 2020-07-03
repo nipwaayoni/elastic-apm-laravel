@@ -24,7 +24,9 @@ php artisan vendor:publish --tag=config
 
 Once published, open the `config/elastic-apm.php` file and review the various settings.
 
-## HTTP Client Configuration
+## Customizing Agent Creation
+
+### HTTP Client Configuration
 
 If you need to customize the HTTP client, you must create a [PSR-18](https://www.php-fig.org/psr/psr-18/) compatible implementation and bind it in the Laravel service container. For now, we will use a GuzzleHttp adapter from the PHP-HTTP project.
 
@@ -49,3 +51,13 @@ $this->app->bind('ElasticApmHttpClient', function () {
 ```
 
 If the service container has a binding for `ElasticApmHttpClient`, the concrete implementation will be retrieved and passed into the `Agent`.
+
+### Other Agent Services
+
+ElasticApmEventFactory
+ElasticApmTransactionStore
+ElasticApmRequestFactory
+ElasticApmStreamFactory
+
+### APM Transaction Hooks
+
