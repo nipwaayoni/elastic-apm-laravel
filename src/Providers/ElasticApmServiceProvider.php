@@ -61,6 +61,7 @@ class ElasticApmServiceProvider extends ServiceProvider
                         'active' => config('elastic-apm.active'),
                         'framework' => 'Laravel',
                         'frameworkVersion' => app()->version(),
+                        'environment' => config('elastic-apm.environment'),
                     ],
                     $this->getAppConfig(),
                     config('elastic-apm.server')
