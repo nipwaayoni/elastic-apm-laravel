@@ -90,23 +90,6 @@ class RecordTransaction
         return $response;
     }
 
-    /**
-     * Perform any final actions for the request lifecycle.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Symfony\Component\HttpFoundation\Response $response
-     *
-     * @return void
-     */
-    public function terminate($request, $response)
-    {
-        try {
-            $this->agent->send();
-        } catch (\Throwable $t) {
-            Log::error($t);
-        }
-    }
-
     protected function response(Response $response): array
     {
         return [
