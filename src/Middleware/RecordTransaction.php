@@ -93,8 +93,6 @@ class RecordTransaction
 
         $transaction->stop($this->timer->getElapsedInMilliseconds());
 
-        $this->agent->send();
-
         return $response;
     }
 

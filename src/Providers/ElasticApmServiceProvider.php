@@ -3,7 +3,10 @@
 namespace Nipwaayoni\ElasticApmLaravel\Providers;
 
 use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
@@ -78,6 +81,14 @@ class ElasticApmServiceProvider extends ServiceProvider
         $this->app->alias(Agent::class, 'elastic-apm');
 
         $this->app->instance('query-log', new Collection());
+
+        // Register a callback on terminating to send the events
+        $this->app->terminating(function (Request $request, Response $response) {
+            /** @var Agent $agent */
+            $agent = resolve(Agent::class);
+
+            $agent->send();
+        });
     }
 
     /**
