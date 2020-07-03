@@ -26,38 +26,67 @@ Once published, open the `config/elastic-apm.php` file and review the various se
 
 ## Customizing Agent Creation
 
+The `Agent` object used to manage APM events is created using the provided `AgentBuilder` class. You can control many aspects of the `Agent` creation by binding your own implementation into the service container. Some helpful examples are shown below. For more details, refer to the [Elastic APM PHP Agent](https://github.com/nipwaayoni/elastic-apm-php-agent/blob/master/docs/agent.md) documentation.
+
+### Binding an AgentBuilder
+
+Bind your implementation as a singleton in the service container:
+
+```php
+$this->app->bind(AgentBuilder::class, function () {
+    $builder = new AgentBuilder();
+
+    // configure the builder
+
+    return $builder;
+});
+```
+
+Note that the `ElasticApmServiceProvider` will always call the `AgentBuilder::withConfig()` and `AgentBuilder::withEnvData()` methods. You must use the provided `elastic-apm` configuration options to influence those settings.
+
 ### HTTP Client Configuration
 
-If you need to customize the HTTP client, you must create a [PSR-18](https://www.php-fig.org/psr/psr-18/) compatible implementation and bind it in the Laravel service container. For now, we will use a GuzzleHttp adapter from the PHP-HTTP project.
+If you need to customize the HTTP client, you must create a [PSR-18](https://www.php-fig.org/psr/psr-18/) compatible implementation and provide it to the `AgentBuilder. For now, we will use a GuzzleHttp adapter from the PHP-HTTP project.
 
 ```bash
 composer require http-interop/http-factory-guzzle php-http/guzzle6-adapter
 ```
 
-The following example demonstrates how to create a GuzzleHttp client that will not verify server certificates. Once you create the client, bind it in the service container under the `ElasticApmHttpClient` abstract.
+The following example demonstrates how to create a GuzzleHttp client that will not verify server certificates.
 
 ```php
-$this->app->bind('ElasticApmHttpClient', function () {
-    // Create the configured client
+$this->app->bind(AgentBuilder::class, function () {
+    $builder = new AgentBuilder();
+
     $client = new \GuzzleHttp\Client([
         'verify' => false,
         // other client options
     ]);
     
     // Wrap the client object in the adapter and return it
-    return new \Http\Adapter\Guzzle6\Client($client);
+    $builder->withHttpClient(new \Http\Adapter\Guzzle6\Client($client));
+
+    return $builder;
 });
-
 ```
-
-If the service container has a binding for `ElasticApmHttpClient`, the concrete implementation will be retrieved and passed into the `Agent`.
-
-### Other Agent Services
-
-ElasticApmEventFactory
-ElasticApmTransactionStore
-ElasticApmRequestFactory
-ElasticApmStreamFactory
 
 ### APM Transaction Hooks
 
+You can hook the APM HTTP request/response process to examine the data to be sent to APM and the response after sending. This may be helpful in troubleshooting issues.
+
+```php
+$this->app->bind(AgentBuilder::class, function () {
+    $builder = new AgentBuilder();
+
+    $builder->withPreCommitCallback(function (RequestInterface $request) {
+        Log::info(sprintf('Pre commit url is: %s', $request->getUri()));
+    });
+
+    $builder->withPostCommitCallback(function (ResponseInterface $response) {
+        Log::info(sprintf('Post commit response status: %s', $response->getStatusCode()));
+        Log::debug($response->getBody()->getContents());
+    });
+
+    return $builder;
+});
+```
