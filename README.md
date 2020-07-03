@@ -114,7 +114,7 @@ Refer to the [configuration docs](docs/configuration.md) for more information.
 
 ### HTTP Client Customization
 
-It is no longer possible to provide HTTP client options through the APM PHP Agent configuration. If you need to customize the HTTP client, you must implement and configure a suitable client object and properly register it with the Laravel service container. See the "HTTP Client Configuation" section of the [configuration docs](docs/configuration.md).
+It is no longer possible to provide HTTP client options through the APM PHP Agent configuration. If you need to customize the HTTP client, you must implement and configure a suitable client object and provide it to the `AgentBuilder`. See the "HTTP Client Configuration" section of the [configuration docs](docs/configuration.md).
 
 ## Laravel Test Setup
 

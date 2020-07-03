@@ -51,10 +51,9 @@ class ElasticApmServiceProvider extends ServiceProvider
             'elastic-apm'
         );
 
-        $this->app->singleton(Agent::class, function ($app) {
-            $container = resolve(ContainerInterface::class);
-
+        $this->app->singleton(Agent::class, function () {
             $builder = resolve(AgentBuilder::class);
+
             $builder->withConfig(new Config(
                 array_merge(
                     [
@@ -69,26 +68,6 @@ class ElasticApmServiceProvider extends ServiceProvider
             ));
 
             $builder->withEnvData(config('elastic-apm.env'));
-
-            if ($container->has('ElasticApmEventFactory')) {
-                $builder->withEventFactory($container->get('ElasticApmEventFactory'));
-            }
-
-            if ($container->has('ElasticApmTransactionStore')) {
-                $builder->withTransactionStore($container->get('ElasticApmTransactionStore'));
-            }
-
-            if ($container->has('ElasticApmHttpClient')) {
-                $builder->withHttpClient($container->get('ElasticApmHttpClient'));
-            }
-
-            if ($container->has('ElasticApmRequestFactory')) {
-                $builder->withRequestFactory($container->get('ElasticApmRequestFactory'));
-            }
-
-            if ($container->has('ElasticApmStreamFactory')) {
-                $builder->withStreamFactory($container->get('ElasticApmStreamFactory'));
-            }
 
             return $builder->build();
         });

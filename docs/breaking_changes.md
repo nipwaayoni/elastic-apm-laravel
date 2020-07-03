@@ -1,6 +1,10 @@
 # Breaking Changes
 
-## 7.x
+## 7.1.0
+
+1. Removed the ability to bind "ElasticApm*" objects into the container to set on the AgentBuilder. Configuring the AgentBuilder is now done by binding an implementation into the container which the ElasticApmServiceProvider will resolve and use.
+
+## 7.0.0
 
 1. The [Elastic APM PHP Agent](https://github.com/nipwaayoni/elastic-apm-php-agent) minimum version has been updated.
 2. It is no longer recommended to call `Agent::send()` in `Exceptions\Handler::report()`. This will likely result in duplicate reporting of exceptions.
