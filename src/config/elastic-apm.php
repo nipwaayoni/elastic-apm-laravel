@@ -13,6 +13,9 @@ return [
         'appVersion'    => env('APM_APPVERSION', ''),
     ],
 
+    // list of URIs not to record as transactions
+    'except' => [],
+
     // list allowed environment variables OR empty array to send everything
     'env' => ['DOCUMENT_ROOT', 'REMOTE_ADDR'],
 

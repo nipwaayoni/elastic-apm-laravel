@@ -3,7 +3,10 @@
 namespace Nipwaayoni\ElasticApmLaravel\Providers;
 
 use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
@@ -51,16 +54,16 @@ class ElasticApmServiceProvider extends ServiceProvider
             'elastic-apm'
         );
 
-        $this->app->singleton(Agent::class, function ($app) {
-            $container = resolve(ContainerInterface::class);
+        $this->app->singleton(Agent::class, function () {
+            $builder = resolve(AgentBuilder::class);
 
-            $builder = new AgentBuilder();
             $builder->withConfig(new Config(
                 array_merge(
                     [
                         'active' => config('elastic-apm.active'),
                         'framework' => 'Laravel',
                         'frameworkVersion' => app()->version(),
+                        'environment' => config('elastic-apm.environment'),
                     ],
                     $this->getAppConfig(),
                     config('elastic-apm.server')
@@ -68,26 +71,6 @@ class ElasticApmServiceProvider extends ServiceProvider
             ));
 
             $builder->withEnvData(config('elastic-apm.env'));
-
-            if ($container->has('ElasticApmEventFactory')) {
-                $builder->withEventFactory($container->get('ElasticApmEventFactory'));
-            }
-
-            if ($container->has('ElasticApmTransactionStore')) {
-                $builder->withTransactionStore($container->get('ElasticApmTransactionStore'));
-            }
-
-            if ($container->has('ElasticApmHttpClient')) {
-                $builder->withHttpClient($container->get('ElasticApmHttpClient'));
-            }
-
-            if ($container->has('ElasticApmRequestFactory')) {
-                $builder->withRequestFactory($container->get('ElasticApmRequestFactory'));
-            }
-
-            if ($container->has('ElasticApmStreamFactory')) {
-                $builder->withStreamFactory($container->get('ElasticApmStreamFactory'));
-            }
 
             return $builder->build();
         });
@@ -98,6 +81,14 @@ class ElasticApmServiceProvider extends ServiceProvider
         $this->app->alias(Agent::class, 'elastic-apm');
 
         $this->app->instance('query-log', new Collection());
+
+        // Register a callback on terminating to send the events
+        $this->app->terminating(function (Request $request, Response $response) {
+            /** @var Agent $agent */
+            $agent = resolve(Agent::class);
+
+            $agent->send();
+        });
     }
 
     /**

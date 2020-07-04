@@ -120,6 +120,28 @@ class RecordTransactionTest extends TestCase
         $recorder->handle($request, $next);
     }
 
+    protected function useExceptList($app)
+    {
+        $app->config->set('elastic-apm.except', ['/except/uri']);
+    }
+
+    /**
+     * @environment-setup useExceptList
+     */
+    public function testDoesNotStartTransactionForUriInExceptList(): void
+    {
+        $this->agent->expects($this->never())->method('startTransaction');
+
+        $request = $this->makeRequest('GET', ['server' => ['REQUEST_URI' => '/except/uri']]);
+        $next = function () {
+            return new Response();
+        };
+
+        $recorder = new RecordTransaction($this->agent, $this->timer);
+
+        $recorder->handle($request, $next);
+    }
+
     protected function makeRequest(string $method = 'GET', array $options = []): Request
     {
         $query = $options['query'] ?? [];
