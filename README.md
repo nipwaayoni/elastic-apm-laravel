@@ -1,3 +1,7 @@
+# IMPORTANT!!! This package is abandoned
+
+This package is no longer being maintained. Please use https://github.com/arkaitzgarro/elastic-apm-laravel
+
 # PHP Elastic APM for Laravel & Lumen
 
 [![Latest Stable Version](https://poser.pugx.org/nipwaayoni/elastic-apm-laravel/v)](//packagist.org/packages/nipwaayoni/elastic-apm-laravel)
